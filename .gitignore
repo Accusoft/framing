@@ -1,0 +1,7 @@
+.DS_Store
+coverage
+node_modules
+test_artifacts
+test/mocha.opts
+.vscode
+*.log

@@ -1,0 +1,39 @@
+{
+  "name": "framing",
+  "version": "3.0.0-alpha.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "./test.sh"
+  },
+  "obfuscation": {
+    "index.js": [
+      "*.js"
+    ]
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "bluebird": "^3.4.1",
+    "chai": "^3.4.1",
+    "eslint": "^1.10.3",
+    "eslint-teamcity": "^1.0.0",
+    "istanbul": "^0.4.2",
+    "mocha": "^2.3.4",
+    "mocha-teamcity-cov-reporter": "0.0.1",
+    "mocha-teamcity-reporter": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Accusoft/framing.git"
+  },
+  "dependencies": {
+    "lodash": "^4.5.1",
+    "yargs": "^4.7.1"
+  },
+  "keywords": [
+    "dependency",
+    "injection",
+    "framework"
+  ]
+}
