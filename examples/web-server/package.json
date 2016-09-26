@@ -1,0 +1,35 @@
+{
+  "name": "web-server-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "service/lib/index.js",
+  "private": true,
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "express-session": "^1.14.0",
+    "express-socket.io-session": "^1.3.1",
+    "framing": "^3.0.1",
+    "jquery": "^3.1.0",
+    "nunjucks": "^2.4.2",
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8"
+  },
+  "devDependencies": {
+    "eslint": "^3.2.2",
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.9",
+    "gulp-webpack": "^1.5.0",
+    "nodemon": "^1.10.2"
+  },
+  "scripts": {
+    "start": "node service/lib/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node node_modules/gulp/bin/gulp.js --gulpfile service/components/client/gulpfile.js",
+    "debug": "node node_modules/nodemon/bin/nodemon.js service/lib/index.js",
+    "dev-ui": "node node_modules/gulp/bin/gulp.js --gulpfile service/components/client/gulpfile.js build-dev"
+  },
+  "author": "Michael Pardue <mpardue@accusoft.com>",
+  "license": "MIT"
+}
