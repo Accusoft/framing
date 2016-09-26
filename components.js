@@ -85,7 +85,7 @@ function processComponentInfo(baseDirectory, directory, folderName, optionalConf
     moduleInfoPath = './' + path.join(componentPath, 'package.json');
 
   // TODO allow for package.json to be within index.js
-  fs.stat(moduleInfoPath, function (error) {
+  fs.stat(path.join(baseDirectory, moduleInfoPath), function (error) {
     if (error && error.code === 'ENOENT') { // there is no package.json
       callback(); return;
     }
