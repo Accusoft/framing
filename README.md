@@ -16,6 +16,7 @@ require('framing')
 - [Application Startup](#application-startup)
 - [Command Line Arguments](#command-line-arguments)
 - [Examples](#examples)
+- [Example Projects](examples/examples.md)
 - [FAQ](FAQ.md)
 
 ## Installation
@@ -38,6 +39,9 @@ Because the execution of the dependency tree for all the components occurs only 
 
 ## Components
 A component in Framing is simply a node module with extra metadata within the **package.json** and an `initialize` function in the `main` code file. Components are by definition singletons within Framing, i.e., each instance of a component interface is shared across all dependents.
+
+### Locations
+By default, components may be installed as node modules with `npm install` or by default be put into the **/components** folder. Framing will first search in the **/components** folder and then in the **node_modules** folder.
 
 ### Initialize Method
 When the `initialize` method for the component executes, the component constructs the object interface for the component and returns the interface to Framing.

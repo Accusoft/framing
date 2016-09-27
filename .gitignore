@@ -5,3 +5,5 @@ test_artifacts
 test/mocha.opts
 .vscode
 *.log
+sessions.txt
+examples/web-server/service/components/client/dist

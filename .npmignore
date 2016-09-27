@@ -1,5 +1,6 @@
 .DS_Store
 coverage
+examples
 node_modules
 test_artifacts
 test
