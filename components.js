@@ -454,6 +454,11 @@ InitializationPath.prototype.execute = function (baseDirectory, optionalConfig, 
       try {
         node.componentInstance.initialize.componentInfo = node.componentInfo;
         initializeComponent(node.componentInstance, imports, optionalConfig, function (error, componentInterface) {
+          if (optionalConfig && error && !(error instanceof Error) && error.toString() !== '[object Error]') {
+            componentInterface = error;
+            error = null;
+          }
+
           if (error) {
             error.componentNode = node;
             done(error); return;
