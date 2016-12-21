@@ -41,7 +41,7 @@ function loadComponent(componentMainPath) {
   return componentInstance;
 }
 
-function ComponentInfo(componentPath, moduleInfo, optionalConfig) {
+function ComponentInfo(componentPath, moduleInfo, optionalConfig, enableDiscovery, baseDirectory) {
   if (!componentPath) {
     throw new Error('Parameter componentPath is required.');
   }
@@ -51,6 +51,33 @@ function ComponentInfo(componentPath, moduleInfo, optionalConfig) {
 
   this.componentPath = componentPath;
   this.moduleInfo = moduleInfo;
+
+  // legacy framing 2.0
+  if (!moduleInfo.framing && enableDiscovery) {
+    if (!moduleInfo.main) {
+      this.invalidComponent = true;
+      return;
+    }
+
+    var componentMainPath = './' + path.join(componentPath, moduleInfo.main);
+    try {
+      var data = fs.readFileSync(path.join(baseDirectory, componentMainPath), 'utf8');
+      if (!data.match(/((initialize)(\s*)\=(\s*)(function))|((function)(\s*)(initialize))|initialize\s*=\s*\(.*\)\s*=>\s*\{/)) {
+        this.invalidComponent = true;
+        return; 
+      }
+      moduleInfo.framing = {
+        imports: moduleInfo.imports,
+        optionalImports: moduleInfo.optionalImports,
+        subDirectories: moduleInfo.subDirectories
+      };
+      this.legacy = true;
+    } catch (e) {
+      // probably best to just ignore errors
+      this.invalidComponent = true;
+      return;
+    }
+  }
 
   if (moduleInfo.framing) {
     this.name = moduleInfo.framing.name || moduleInfo.name;
@@ -80,7 +107,7 @@ function ComponentInfo(componentPath, moduleInfo, optionalConfig) {
   }
 }
 
-function processComponentInfo(baseDirectory, directory, folderName, optionalConfig, callback) {
+function processComponentInfo(baseDirectory, directory, folderName, optionalConfig, enableDiscovery, callback) {
   var componentPath = './' + path.join(directory, folderName),
     moduleInfoPath = './' + path.join(componentPath, 'package.json');
 
@@ -95,7 +122,7 @@ function processComponentInfo(baseDirectory, directory, folderName, optionalConf
 
     var moduleInfo = loadModuleInfo(path.join(baseDirectory, moduleInfoPath));
     try {
-      var componentInfo = new ComponentInfo(componentPath, moduleInfo, optionalConfig);
+      var componentInfo = new ComponentInfo(componentPath, moduleInfo, optionalConfig, enableDiscovery, baseDirectory);
     } catch (ex) {
       callback(ex); return;
     }
@@ -108,7 +135,7 @@ function processComponentInfo(baseDirectory, directory, folderName, optionalConf
   });
 }
 
-function listComponents(baseDirectory, directory, optionalConfig, callback) {
+function listComponents(baseDirectory, directory, optionalConfig, enableDiscovery, callback) {
   if (!baseDirectory) {
     baseDirectory = '';
   }
@@ -139,7 +166,7 @@ function listComponents(baseDirectory, directory, optionalConfig, callback) {
         }
 
         if (stat.isDirectory()) {
-          processComponentInfo(baseDirectory, directory, file, optionalConfig, function (error, componentInfo) {
+          processComponentInfo(baseDirectory, directory, file, optionalConfig, enableDiscovery, function (error, componentInfo) {
             if (error) {
               callback(error); return;
             }
@@ -160,7 +187,7 @@ function listComponents(baseDirectory, directory, optionalConfig, callback) {
   });
 }
 
-function buildComponentList(baseDirectory, directories, useNodeModules, optionalConfig, callback) {
+function buildComponentList(baseDirectory, directories, useNodeModules, optionalConfig, enableDiscovery, callback) {
   if (callback === undefined) {
     callback = optionalConfig;
     optionalConfig = false;
@@ -199,7 +226,7 @@ function buildComponentList(baseDirectory, directories, useNodeModules, optional
       callback(null, components); return;
     }
 
-    listComponents(baseDirectory, directories[i], optionalConfig, function (error, directoryComponents) {
+    listComponents(baseDirectory, directories[i], optionalConfig, enableDiscovery, function (error, directoryComponents) {
       if (error) {
         callback(error); return;
       }

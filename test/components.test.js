@@ -684,7 +684,7 @@ describe('Framing Module', function () {
           _readFileResponse[dir('test-directory/test-component2/index.js')] = { module: MOCK_COMPONENT_CODE };
           _readFileResponse[dir('test-directory/test-component3/index.js')] = { module: MOCK_COMPONENT_CODE };
 
-          components.buildComponentList(null, ['test-directory'], false, true, function (error, componentList) {
+          components.buildComponentList(null, ['test-directory'], false, true, false, function (error, componentList) {
             _componentList = componentList;
             done();
           });
