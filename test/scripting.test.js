@@ -159,7 +159,7 @@ describe('Framing Module', function () {
           expect(_streamMock.buffer()).to.equal(
             'var initializationPath = new framing.InitializationPath({"nodes":[{"level":0,"dependencyCount":0,"dependencies":[],"componentInfo":{"componentMainPath":"test"}}]}); \n' + 
             'initializationPath.nodes[0].componentInstance = require(\'test\'); \n' + 
-            'initializationPath.execute(\'./\', function (error) { if (error) { if (error.initializationErrors) { framing.logComponentErrors(error); } } }); \n'
+            'initializationPath.execute(\'./\', false, function (error) { if (error) { if (error.initializationErrors) { framing.logComponentErrors(error); } } }); \n'
           );
         });
       });

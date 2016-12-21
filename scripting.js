@@ -53,18 +53,18 @@ function writeHeader(stream) {
   stream.write('var framing = require(\'framing\'); \n');
 }
 
-function writeComponents(stream, rootComponents) {
-  var initializationPath = components.toInitializationPath(rootComponents);
+function writeComponents(stream, rootComponents, optionalConfig) {
+  var initializationPath = components.toInitializationPath(rootComponents, optionalConfig);
   initializationPath.nodes.forEach(function (node) { delete node.componentInfo.moduleInfo; });
   stream.write('var initializationPath = new framing.InitializationPath(' + JSON.stringify(initializationPath) + '); \n');
   writeRequires(stream, initializationPath);
-  stream.write('initializationPath.execute(\'./\', function (error) { if (error) { if (error.initializationErrors) { framing.logComponentErrors(error); } } }); \n');
+  stream.write('initializationPath.execute(\'./\', ' + (optionalConfig ? 'true' : 'false') + ', function (error) { if (error) { if (error.initializationErrors) { framing.logComponentErrors(error); } } }); \n');
 }
 
-function scriptify(stream, baseDir, rootComponents, callback) {
+function scriptify(stream, baseDir, rootComponents, optionalConfig, callback) {
   try {
     writeHeader(stream);
-    writeComponents(stream, rootComponents);
+    writeComponents(stream, rootComponents, optionalConfig);
     callback();
   } catch (e) {
     callback(e);
