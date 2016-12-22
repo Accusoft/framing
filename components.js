@@ -96,11 +96,11 @@ function ComponentInfo(componentPath, moduleInfo, optionalConfig, enableDiscover
     this.subDirectories = moduleInfo.framing.subDirectories;
 
     if (optionalConfig && 
-        (!this.imports || this.imports.indexOf('config') < 0) && 
-        (!this.optionalImports || this.optionalImports.indexOf('config') < 0) &&
-        (this.name !== 'config')) {
+        (!this.imports || this.imports.indexOf('optional-config') < 0) && 
+        (!this.optionalImports || this.optionalImports.indexOf('optional-config') < 0) &&
+        (this.name !== 'optional-config')) {
       this.optionalImports = this.optionalImports || [];
-      this.optionalImports.push('config');
+      this.optionalImports.push('optional-config');
     }
   } else {
     this.invalidComponent = true;
@@ -374,11 +374,13 @@ function initializeComponent(componentInstance, imports, optionalConfig, callbac
   }
 
   if (optionalConfig && componentInstance.initialize.length === 3) {
-    var config = imports.config
-      ? imports.config.load(componentInstance)
-      : { };
+    var config = imports['optional-config']
+      ? imports['optional-config'].load(componentInstance)
+      : Promise.resolve({ });
 
-    return componentInstance.initialize(config, imports, onInitialized);
+    return config.then(function (config) {
+      componentInstance.initialize(config, imports, onInitialized);
+    }, onInitialized);
   }
 
   var promise = componentInstance.initialize(imports, onInitialized);
