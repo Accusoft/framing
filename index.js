@@ -47,12 +47,12 @@ function errorLog(/*args*/) {
   log.apply(this, arguments);
 }
 
-function loadComponentGraphs(baseDirectory, directories, useNodeModules, optionalConfig, callback) {
+function loadComponentGraphs(baseDirectory, directories, useNodeModules, optionalConfig, enableDiscovery, callback) {
   debugLog('base-directory', baseDirectory);
   debugLog('use-node-modules', useNodeModules);
   debugLog('directories', directories);
 
-  components.buildComponentList(baseDirectory, directories, useNodeModules, optionalConfig,
+  components.buildComponentList(baseDirectory, directories, useNodeModules, optionalConfig, enableDiscovery,
     function (error, componentList) {
       if (error) {
         callback(error); return;
@@ -76,8 +76,8 @@ function loadComponentGraphs(baseDirectory, directories, useNodeModules, optiona
     });
 }
 
-function loadComponents(args, baseDirectory, directories, useNodeModules, entryPoint, optionalConfig, callback) {
-  loadComponentGraphs(baseDirectory, directories, useNodeModules, optionalConfig, function (error, graphs) {
+function loadComponents(args, baseDirectory, directories, useNodeModules, entryPoints, optionalConfig, enableDiscovery, callback) {
+  loadComponentGraphs(baseDirectory, directories, useNodeModules, optionalConfig, enableDiscovery, function (error, graphs) {
     if (error) {
       callback(error); return;
     }
@@ -88,9 +88,7 @@ function loadComponents(args, baseDirectory, directories, useNodeModules, entryP
 
     callback(null, Object.keys(graphs)
       .filter(function (name) {
-        return (entryPoint
-          ? entryPoint === name
-          : true);
+        return entryPoints.length === 0 || entryPoints.indexOf(name) >= 0;
       })
       .map(function (name) { return graphs[name]; }));
   });
@@ -102,14 +100,16 @@ function execute(baseDir, componentList, optionalConfig, callback) {
   });
 }
 
-function scriptify(baseDir, componentList, callback) {
-  scripting.scriptify(process.stdout, baseDir, componentList, callback);
+function scriptify(baseDir, componentList, optionalConfig, callback) {
+  scripting.scriptify(process.stdout, baseDir, componentList, optionalConfig, callback);
 }
 
 function Framing() {
   this.baseDir = null;
   this.useNodeModules = true;
   this.componentDirectories = [ './components' ];
+  this.optionalConfig = false;
+  this.enableDiscovery = false;
 }
 
 Framing.prototype.setBaseDir = function (directory) {
@@ -130,6 +130,12 @@ Framing.prototype.useConfig = function () {
   return this;
 };
 
+Framing.prototype.useDiscovery = function () {
+  this.enableDiscovery = true;
+
+  return this;
+};
+
 Framing.prototype.InitializationPath = components.InitializationPath;
 
 Framing.prototype.logComponentErrors = function (error) {
@@ -144,16 +150,22 @@ Framing.prototype.logComponentErrors = function (error) {
   }
 };
 
-Framing.prototype.run = function (entryPoint) {
+Framing.prototype.run = function () {
   var _this = this;
   var argDirectories = args.directories !== false && args.directories
     ? args.directories.split(',')
-    : [];
+    : [];  
+  var entryPoints = Array.prototype.slice.call(arguments);
+
   loadComponents(
-    args, this.baseDir, this.componentDirectories.concat(argDirectories), this.useNodeModules, entryPoint, this.optionalConfig,
+    args, this.baseDir, this.componentDirectories.concat(argDirectories), this.useNodeModules, entryPoints, this.optionalConfig, this.enableDiscovery,
     function (error, componentList) {
       if (error) {
         errorLog(error.stack || error); return;
+      }
+
+      if (componentList.length === 0) {
+        errorLog('Unable to find any components.'); return;
       }
 
       if (!args.scriptify) {
@@ -163,7 +175,7 @@ Framing.prototype.run = function (entryPoint) {
           }
         });
       } else {
-        scriptify(_this.baseDir, componentList, function (error) {
+        scriptify(_this.baseDir, componentList, _this.optionalConfig, function (error) {
           if (error) {
             _this.logComponentErrors(error);
           }
