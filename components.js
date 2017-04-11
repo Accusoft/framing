@@ -494,6 +494,8 @@ InitializationPath.prototype.execute = function (baseDirectory, optionalConfig, 
           }
 
           initialized[node.componentInfo.name] = node;
+          initialized[node.componentInfo.moduleName] = node;
+
           node.componentInterface = componentInterface || {}; // if there is no interface, not a problem
 
           next();
