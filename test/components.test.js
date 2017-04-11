@@ -692,7 +692,7 @@ describe('Framing Module', function () {
 
         it('All components are set to optionally include the "config" component', function () {
           expect(_componentList.every(function (component) {
-            return component.optionalImports.indexOf('config') === 0;
+            return component.optionalImports.indexOf('optional-config') === 0;
           })).to.be.true;
         });
       });
@@ -1021,12 +1021,13 @@ describe('Framing Module', function () {
       it('loads the config for components that attempt to use it', function (done) {
         var _config = null;
         _requireResponse = {
-          'config': { module: new ComponentInstanceMock('config', function (imports, callback) {
+          'optional-config': { module: new ComponentInstanceMock('optional-config', function (imports, callback) {
             callback(null, {
               load: function (component) {
-                return component.initialize.componentInfo.name === 'test-component'
+                return Promise.resolve(component.initialize.componentInfo.name === 'test-component'
                   ? { test: 'test' }
-                  : null;
+                  : null
+                );
               }
             });
           }) },
@@ -1036,7 +1037,7 @@ describe('Framing Module', function () {
           }) },
           'test-dependency': { module: new ComponentInstanceMock('test-dependency') }
         };
-        var config = new ComponentMock('config');
+        var config = new ComponentMock('optional-config');
         var testDependency = new ComponentMock('test-dependency', null, [ config ]);
         var testComponent = new ComponentMock('test-component', [ testDependency ], [ config ]);
         components.dependencyGraphs([
