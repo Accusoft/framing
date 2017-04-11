@@ -1018,6 +1018,20 @@ describe('Framing Module', function () {
         });
       });
 
+      it('initializes a component by module name', function (done) {
+        _requireResponse = {
+          'test-component': { module: new ComponentInstanceMock('test-component') },
+          'test-root-component': { module: new ComponentInstanceMock('test-root-component') }
+        };
+        var component = new ComponentMock('test-component');
+        component.moduleName = 'test-component-module';
+        components.dependencyGraphs([component, new ComponentMock('test-root-component')], ['test-component-module'], function (error, dependencyGraphs) {
+          components.executeComponents(null, [dependencyGraphs['test-root-component']], function () {
+            done(); // success
+          });
+        });
+      });
+
       it('loads the config for components that attempt to use it', function (done) {
         var _config = null;
         _requireResponse = {
